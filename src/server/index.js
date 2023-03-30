@@ -1,5 +1,6 @@
 require('dotenv').config();
 const express = require('express');
+const fs = require('fs');
 const mysql = require('mysql');
 const bodyParser = require('body-parser');
 const jwt = require('jsonwebtoken');
@@ -238,6 +239,17 @@ app.get('/dados/:id', (req, res) => {
     res.json(result);
   });
 });
+
+// endpoint images
+app.get('/images/:name', (req, res) => {
+  const { name } = req.params;
+  const filePath = __dirname + '\\images\\' + name;
+  fs.access(filePath, fs.constants.F_OK, err => {
+    if (err) res.status(404).send('Arquivo não encontrado');
+    else res.sendFile(filePath);
+  });
+});
+
 
 // Inicie o servidor na porta 3000
 app.listen(PORT, () => {
