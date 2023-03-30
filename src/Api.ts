@@ -80,6 +80,23 @@ export const api = {
     return data;
   },
 
+    /**
+   * Retorna os Estados
+   * 
+   * @returns 
+   */
+    async categoria() {
+      let data: any;
+      try {
+        const response = await http.get('/api/categoria');
+        data = response.data;
+      } catch (e: any) {
+        data = trataErrorResponse(e);
+      }
+  
+      return data;
+    },
+
   async myCount() {
     let data: any = {};
     try {

@@ -89,6 +89,28 @@ connection.query('DROP DATABASE IF EXISTS olx', (err, result) => {
         });
       });
 
+      // TABLE categoria
+      connection.query(`CREATE TABLE categoria (
+        id SMALLINT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
+        description VARCHAR(100) NOT NULL,
+        image VARCHAR(1024) NOT NULL
+      )`, (err, result) => {
+        if (err) throw err;
+
+        let data = [
+          {name: 'Bebês', image: `http://localhost:${PORT}/images/bebes.gif`},
+          {name: 'Carros', image: `http://localhost:${PORT}/images/carros.gif`},
+          {name: 'Roupas', image: `http://localhost:${PORT}/images/roupas.gif`},
+          {name: 'Eletrônicos', image: `http://localhost:${PORT}/images/eletronicos.gif`},
+        ]
+        .map(item => `('${item.name}', '${item.image}')`)
+        .join(',');
+
+        connection.query(`INSERT INTO categoria (description, image) VALUES ${data}`, (err, result) => {
+          if (err) throw err;
+        });
+      });
+
 
     });
   });
@@ -186,6 +208,15 @@ app.post('/api/register', (req, res) => {
 // endpoint estados
 app.get('/api/uf', (req, res) => {
   const sql = 'SELECT * FROM uf';
+  connection.query(sql, (err, result) => {
+    if (err) throw err;
+    res.json(result);
+  });
+});
+
+// endpoint categoria
+app.get('/api/categoria', (req, res) => {
+  const sql = 'SELECT * FROM categoria';
   connection.query(sql, (err, result) => {
     if (err) throw err;
     res.json(result);
