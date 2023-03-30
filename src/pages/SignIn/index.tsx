@@ -19,22 +19,16 @@ function Page() {
   const handleChangePassword = (e: ChangeEvent<HTMLInputElement>) => setPassword(e.target.value);
   const handleChangeRemember = (e: ChangeEvent<HTMLInputElement>) => setRememberPassword(!rememberPassword);
   
-  useEffect(() => {
-    const fn = async () => await api.myCount();
-    fn();
-  
-  }, []);
-
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setDisabled(true);
 
-    const json = await api.logion(email, password);
+    const resp = await api.login(email, password);
 
-    if (json.error) {
-      setError(json.error);
+    if (resp.error) {
+      setError(resp.error);
     } else {
-      doLogin(json.token, rememberPassword);
+      doLogin(resp.token, rememberPassword);
       window.location.href = '/';
     }
 
