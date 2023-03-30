@@ -9,3 +9,7 @@ body {
 a, .btn-link {
   color: #333;
 }
+
+.text-justify {
+  text-align: justify;
+}
