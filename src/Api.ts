@@ -97,6 +97,24 @@ export const api = {
     return data;
   },
 
+  /**
+   * Retorna a lista de Ads
+   * 
+   * @param filters {Object} filtros da pesquisa
+   * @returns 
+   */
+  async ads(filters: Object) {
+    let data: ErrorType | any;
+    try {
+      const response = await http.get('/api/ads', { params: filters });
+      data = response.data;
+    } catch (e: any) {
+      data = trataErrorResponse(e);
+    }
+
+    return data;
+  },
+
   async myCount() {
     let data: any = {};
     try {

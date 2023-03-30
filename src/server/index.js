@@ -113,6 +113,31 @@ connection.query('DROP DATABASE IF EXISTS olx', (err, result) => {
       });
 
 
+      // TABLE Ad
+      connection.query(`CREATE TABLE ad (
+        id SMALLINT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
+        title VARCHAR(100) NOT NULL,
+        image VARCHAR(1024) NOT NULL,
+        price FLOAT UNSIGNED DEFAULT 0,
+        priceNegotiable TINYINT DEFAULT 0
+      )`, (err, result) => {
+        if (err) throw err;
+
+        let data = [
+          {title: "Notebook Acer 18''", image: `http://localhost:${PORT}/images/ads/notebook-1.gif`, price: 1599, priceNegotiable: 1},
+          {title: "Notebook Acer 18''", image: `http://localhost:${PORT}/images/ads/notebook-1.gif`, price: 1599, priceNegotiable: 0},
+          {title: "Notebook Acer 18''", image: `http://localhost:${PORT}/images/ads/notebook-1.gif`, price: 1599, priceNegotiable: 0},
+          {title: "Notebook Acer 18''", image: `http://localhost:${PORT}/images/ads/notebook-1.gif`, price: 1599, priceNegotiable: 0},
+        ]
+        .map(item => `('${item.title}', '${item.image}', ${item.price}, ${item.priceNegotiable})`)
+        .join(',');
+
+        connection.query(`INSERT INTO ad (title, image, price, priceNegotiable) VALUES ${data}`, (err, result) => {
+          if (err) throw err;
+        });
+      });
+
+
     });
   });
 });
@@ -224,6 +249,15 @@ app.get('/api/categoria', (req, res) => {
   });
 });
 
+// endpoint ads
+app.get('/api/ads', (req, res) => {
+  const sql = 'SELECT * FROM ad';
+  connection.query(sql, (err, result) => {
+    if (err) throw err;
+    res.json(result);
+  });
+});
+
 
 // endpoint protegido que só possa ser acessado com um token válido
 app.get('/protected', verifyToken, (req, res) => {
@@ -244,6 +278,16 @@ app.get('/dados/:id', (req, res) => {
 app.get('/images/:name', (req, res) => {
   const { name } = req.params;
   const filePath = __dirname + '\\images\\' + name;
+  fs.access(filePath, fs.constants.F_OK, err => {
+    if (err) res.status(404).send('Arquivo não encontrado');
+    else res.sendFile(filePath);
+  });
+});
+
+// endpoint images Ads
+app.get('/images/ads/:name', (req, res) => {
+  const { name } = req.params;
+  const filePath = __dirname + '\\images\\ads\\' + name;
   fs.access(filePath, fs.constants.F_OK, err => {
     if (err) res.status(404).send('Arquivo não encontrado');
     else res.sendFile(filePath);
