@@ -1,10 +1,18 @@
 import { Link } from 'react-router-dom';
 import * as C from './styles';
 
-import { isLogged } from '../../../helpers/authHandler';
+import { isLogged, doLogout } from '../../../helpers/authHandler';
+import { api } from '../../../Api';
+
 
 function Comp() {
   let logged = isLogged();
+
+  const handleLogout = async () => {
+    await api.logout();
+    doLogout();
+    window.location.href = '/';
+  };
 
   return (
     <C.Container className='border border-secondary-subtle bg-white'>
@@ -21,7 +29,10 @@ function Comp() {
             {logged &&
               <>
                 <li><Link to="/my-account" className='text-decoration-none pe-5'>Minha Conta</Link></li>
-                <li><Link to="/logout" className='text-decoration-none pe-5'>Sair</Link></li>
+                <li><button 
+                  type="button" 
+                  className='btn btn-link text-decoration-none pe-5'
+                  onClick={() => handleLogout()}>Sair</button></li>
                 <li><Link className='btn btn-sm btn-primary' to="/post-an-ad">Poste um anúncio</Link></li>
               </>
             }
