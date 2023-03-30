@@ -28,19 +28,24 @@ connection.connect((err) => {
   console.log('Conexão com o banco de dados MySQL estabelecida com sucesso!');
 });
 
-connection.query('CREATE DATABASE IF NOT EXISTS olx', (err, result) => {
-  if (err) throw err;
-  console.log("\nBanco OLX Criado com SUCESSO!");
 
-  connection.query('USE olx', (err, result) => {
+connection.query('DROP DATABASE IF EXISTS olx', (err, result) => {
+  if (err) throw err;
+
+  connection.query('CREATE DATABASE olx', (err, result) => {
     if (err) throw err;
-    
-    connection.query('DROP TABLE IF EXISTS user', (err, result) => {
-      connection.query(`
-        CREATE TABLE IF NOT EXISTS olx.user (
+
+    console.log("\nBanco OLX Criado com SUCESSO!");
+  
+    connection.query('USE olx', (err, result) => {
+      if (err) throw err;
+      
+      // TABLE user
+      connection.query(`CREATE TABLE user (
           id SMALLINT UNSIGNED PRIMARY KEY NOT NULL AUTO_INCREMENT,
           name VARCHAR(250) NOT NULL,
           email VARCHAR(250) NOT NULL,
+          uf CHAR(2) NOT NULL,
           password VARCHAR(250) NOT NULL
         )`
       , (err, result) => {
@@ -48,9 +53,9 @@ connection.query('CREATE DATABASE IF NOT EXISTS olx', (err, result) => {
         // console.log("\n", result);
     
         connection.query(`
-          INSERT INTO user (name, email, password) 
+          INSERT INTO user (name, email, uf, password) 
           VALUES 
-          ('Admin', '${USER_EMAIL}', '${hashedPassword}')`
+          ('Admin', '${USER_EMAIL}', 'SP', '${hashedPassword}')`
         , (err, result) => {
           if (err) throw err;
           // console.log("\n", result);
@@ -62,6 +67,29 @@ connection.query('CREATE DATABASE IF NOT EXISTS olx', (err, result) => {
           // });
         });
       });
+
+
+      // TABLE uf
+      connection.query(`CREATE TABLE uf (
+        id CHAR(2) NOT NULL PRIMARY KEY,
+        name CHAR(255) NOT NULL
+      )`, (err, result) => {
+        if (err) throw err;
+
+        let ufs = [
+          {sigla: 'SP', name: 'São Paulo'},
+          {sigla: 'RJ', name: 'Rio de Janeiro'},
+          {sigla: 'MG', name: 'Minas Gerais'},
+        ]
+        .map(item => `('${item.sigla}', '${item.name}')`)
+        .join(',');
+
+        connection.query(`INSERT INTO uf (id, name) VALUES ${ufs}`, (err, result) => {
+          if (err) throw err;
+        });
+      });
+
+
     });
   });
 });
@@ -105,11 +133,11 @@ app.get('/', (req, res) => {
 app.post('/api/login', (req, res) => {
   const { email, password } = req.body;
   
-  const sql = `SELECT * FROM user WHERE email = '${email}' LIMIT 1`;
+  const sql = `SELECT * FROM user WHERE email = ? LIMIT 1`;
 
   try {
 
-    connection.query(sql, (err, result) => {
+    connection.query(sql, [email], (err, result) => {
       if (err) throw err;
 
       // Verifica se encontrou o e-mail do usuário
@@ -123,7 +151,7 @@ app.post('/api/login', (req, res) => {
     
       // Gerar um token JWT
       const token = jwt.sign({ email }, SECRET, { expiresIn: '1h' });
-    
+
       // Retornar o token JWT
       return res.json({ token });
 
@@ -133,6 +161,37 @@ app.post('/api/login', (req, res) => {
     return res.status(401).json({ error: e.message });
   }
 });
+
+// endpoint Logout
+app.post('/api/logout', verifyToken, (req, res) => {
+  // res.clearCookie('jwtToken');
+  res.json({message: 'sucesso'});
+});
+
+// endpoint estados
+app.post('/api/register', (req, res) => {
+  const { name, email, stateLoc, password } = req.body;
+  const values = [name, email, stateLoc, bcrypt.hashSync(password, 10)];
+  const sql = 'INSERT INTO user (name, email, uf, password) VALUES (?, ?, ?, ?)';
+  connection.query(sql, values, (err, result) => {
+    if (err) throw err;
+    console.log(`Usuário: ${email} - criado com sucesso!`);
+    // Gerar um token JWT
+    const token = jwt.sign({ email }, SECRET, { expiresIn: '1h' });
+    // Retornar o token JWT
+    return res.json({ token });
+  });
+});
+
+// endpoint estados
+app.get('/api/uf', (req, res) => {
+  const sql = 'SELECT * FROM uf';
+  connection.query(sql, (err, result) => {
+    if (err) throw err;
+    res.json(result);
+  });
+});
+
 
 // endpoint protegido que só possa ser acessado com um token válido
 app.get('/protected', verifyToken, (req, res) => {
