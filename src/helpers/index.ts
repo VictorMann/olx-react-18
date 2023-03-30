@@ -20,6 +20,10 @@ export const classOf = (data: any) => {
  * @returns {object}
  */
 export const trataErrorResponse = (err: any): ErrorType => {
-	if (classOf(err.response?.data) === 'Object') return err.response.data;
-	return {error: err.response?.statusText};
+	if (err.response) {
+		if (classOf(err.response?.data) === 'Object') return err.response.data;
+		return {error: err.response?.statusText};
+	}
+
+	return {error: `${err.message}\n${err.config?.baseURL}${err.config?.url}`};
 };

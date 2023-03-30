@@ -77,7 +77,7 @@ function Page() {
                   value={stateLoc}
                   onChange={handleChangeStateLoc}>
                     <option>Selecione</option>
-                    {ufs.map(item => (
+                    {ufs.length && ufs.map(item => (
                       <option key={item.id} value={item.id}>
                         {item.id}
                       </option>
@@ -93,7 +93,7 @@ function Page() {
           </form>
 
           <ul className="list-unstyled d-flex justify-content-evenly">
-            {categories.map(item => (
+            {categories.length && categories.map(item => (
               <li key={item.id}>
                 <Link to={`/ads?category=${item.id}`} className="text-decoration-none">
                   <img src={item.image} alt="" className='me-3' style={{width: '60px'}} />
@@ -109,7 +109,7 @@ function Page() {
         <div className="container">
           <PageTitle>Anúncios Recentes</PageTitle>
           <div className='ad-list mb-3'>
-            {ads.map(item => (
+            {ads.length && ads.map(item => (
               <AdItem key={item.id} item={item} />
             ))}
           </div>
