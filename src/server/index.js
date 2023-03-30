@@ -116,23 +116,27 @@ connection.query('DROP DATABASE IF EXISTS olx', (err, result) => {
       // TABLE Ad
       connection.query(`CREATE TABLE ad (
         id SMALLINT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
+        user_id SMALLINT UNSIGNED NOT NULL,
         title VARCHAR(100) NOT NULL,
         image VARCHAR(1024) NOT NULL,
         price FLOAT UNSIGNED DEFAULT 0,
-        priceNegotiable TINYINT DEFAULT 0
+        priceNegotiable TINYINT DEFAULT 0,
+        date_created DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        views SMALLINT UNSIGNED NOT NULL DEFAULT 0,
+        CONSTRAINT fk_ad_user FOREIGN KEY (user_id) REFERENCES user (id)
       )`, (err, result) => {
         if (err) throw err;
 
         let data = [
-          {title: "Notebook Acer 18''", image: `http://localhost:${PORT}/images/ads/notebook-1.gif`, price: 1599, priceNegotiable: 1},
-          {title: "Notebook Acer 18''", image: `http://localhost:${PORT}/images/ads/notebook-1.gif`, price: 1599, priceNegotiable: 0},
-          {title: "Notebook Acer 18''", image: `http://localhost:${PORT}/images/ads/notebook-1.gif`, price: 1599, priceNegotiable: 0},
-          {title: "Notebook Acer 18''", image: `http://localhost:${PORT}/images/ads/notebook-1.gif`, price: 1599, priceNegotiable: 0},
+          {user_id: 1, title: "Notebook Acer 18''", image: `http://localhost:${PORT}/images/ads/notebook-1.gif`, price: 1599, priceNegotiable: 1},
+          {user_id: 1, title: "Notebook Acer 18''", image: `http://localhost:${PORT}/images/ads/notebook-1.gif`, price: 1599, priceNegotiable: 0},
+          {user_id: 1, title: "Notebook Acer 18''", image: `http://localhost:${PORT}/images/ads/notebook-1.gif`, price: 1599, priceNegotiable: 0},
+          {user_id: 1, title: "Notebook Acer 18''", image: `http://localhost:${PORT}/images/ads/notebook-1.gif`, price: 1599, priceNegotiable: 0},
         ]
-        .map(item => `('${item.title}', '${item.image}', ${item.price}, ${item.priceNegotiable})`)
+        .map(item => `(${item.user_id}, '${item.title}', '${item.image}', ${item.price}, ${item.priceNegotiable})`)
         .join(',');
 
-        connection.query(`INSERT INTO ad (title, image, price, priceNegotiable) VALUES ${data}`, (err, result) => {
+        connection.query(`INSERT INTO ad (user_id, title, image, price, priceNegotiable) VALUES ${data}`, (err, result) => {
           if (err) throw err;
         });
       });
