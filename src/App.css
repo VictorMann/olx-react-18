@@ -6,6 +6,6 @@ body {
   margin: 0;
 }
 
-a {
+a, .btn-link {
   color: #333;
 }
