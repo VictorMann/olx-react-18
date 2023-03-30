@@ -16,3 +16,11 @@ export type CategoryType = {
   description: string;
   image: string;
 };
+
+export type AdType = {
+  id: number;
+  title: string;
+  image: string;
+  price: number;
+  priceNegotiable: number | boolean;
+};
