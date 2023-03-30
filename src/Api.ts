@@ -3,7 +3,7 @@ import Cookies from "js-cookie";
 
 import { trataErrorResponse } from "./helpers";
 import { isLogged } from './helpers/authHandler';
-import { ErrorType, LoginType, UFType } from "./types";
+import { CategoryType, ErrorType, LoginType, UFType } from "./types";
 
 const http = axios.create({
   baseURL: 'http://localhost:3001'
@@ -69,7 +69,7 @@ export const api = {
    * @returns 
    */
   async uf() {
-    let data: any;
+    let data: UFType[] | ErrorType | any;
     try {
       const response = await http.get('/api/uf');
       data = response.data;
@@ -80,22 +80,22 @@ export const api = {
     return data;
   },
 
-    /**
-   * Retorna os Estados
+  /**
+   * Retorna a lista de Categorias
    * 
    * @returns 
    */
-    async categoria() {
-      let data: any;
-      try {
-        const response = await http.get('/api/categoria');
-        data = response.data;
-      } catch (e: any) {
-        data = trataErrorResponse(e);
-      }
-  
-      return data;
-    },
+  async categoria() {
+    let data: CategoryType[] | ErrorType | any;
+    try {
+      const response = await http.get('/api/categoria');
+      data = response.data;
+    } catch (e: any) {
+      data = trataErrorResponse(e);
+    }
+
+    return data;
+  },
 
   async myCount() {
     let data: any = {};
