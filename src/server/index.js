@@ -123,20 +123,21 @@ connection.query('DROP DATABASE IF EXISTS olx', (err, result) => {
         priceNegotiable TINYINT DEFAULT 0,
         date_created DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
         views SMALLINT UNSIGNED NOT NULL DEFAULT 0,
+        description TEXT,
         CONSTRAINT fk_ad_user FOREIGN KEY (user_id) REFERENCES user (id)
       )`, (err, result) => {
         if (err) throw err;
 
         let data = [
-          {user_id: 1, title: "Notebook Acer 18''", image: `http://localhost:${PORT}/images/ads/notebook-1.gif`, price: 1599, priceNegotiable: 1},
-          {user_id: 1, title: "Notebook Acer 18''", image: `http://localhost:${PORT}/images/ads/notebook-1.gif`, price: 1599, priceNegotiable: 0},
-          {user_id: 1, title: "Notebook Acer 18''", image: `http://localhost:${PORT}/images/ads/notebook-1.gif`, price: 1599, priceNegotiable: 0},
-          {user_id: 1, title: "Notebook Acer 18''", image: `http://localhost:${PORT}/images/ads/notebook-1.gif`, price: 1599, priceNegotiable: 0},
+          {user_id: 1, title: "Notebook Acer 18''", image: `http://localhost:${PORT}/images/ads/notebook-1.gif`, price: 1599, priceNegotiable: 1, description: 'Processador Intel Core i5-11400H - Six Core – 11ª Geração. GPU Nvidia GeForce GTX 1650 com 4 GB de memória dedicada GDDR6 TGP de 50W'},
+          {user_id: 1, title: "Notebook Acer 18''", image: `http://localhost:${PORT}/images/ads/notebook-1.gif`, price: 1599, priceNegotiable: 0, description: 'Processador Intel Core i5-11400H - Six Core – 11ª Geração. GPU Nvidia GeForce GTX 1650 com 4 GB de memória dedicada GDDR6 TGP de 50W'},
+          {user_id: 1, title: "Notebook Acer 18''", image: `http://localhost:${PORT}/images/ads/notebook-1.gif`, price: 1599, priceNegotiable: 0, description: 'Processador Intel Core i5-11400H - Six Core – 11ª Geração. GPU Nvidia GeForce GTX 1650 com 4 GB de memória dedicada GDDR6 TGP de 50W'},
+          {user_id: 1, title: "Notebook Acer 18''", image: `http://localhost:${PORT}/images/ads/notebook-1.gif`, price: 1599, priceNegotiable: 0, description: 'Processador Intel Core i5-11400H - Six Core – 11ª Geração. GPU Nvidia GeForce GTX 1650 com 4 GB de memória dedicada GDDR6 TGP de 50W'},
         ]
-        .map(item => `(${item.user_id}, '${item.title}', '${item.image}', ${item.price}, ${item.priceNegotiable})`)
+        .map(item => `(${item.user_id}, '${item.title}', '${item.image}', ${item.price}, ${item.priceNegotiable}, '${item.description}')`)
         .join(',');
 
-        connection.query(`INSERT INTO ad (user_id, title, image, price, priceNegotiable) VALUES ${data}`, (err, result) => {
+        connection.query(`INSERT INTO ad (user_id, title, image, price, priceNegotiable, description) VALUES ${data}`, (err, result) => {
           if (err) throw err;
         });
       });
@@ -259,6 +260,17 @@ app.get('/api/ads', (req, res) => {
   connection.query(sql, (err, result) => {
     if (err) throw err;
     res.json(result);
+  });
+});
+
+// endpoint ads
+app.get('/api/ad/:id', (req, res) => {
+  const { id } = req.params;
+  const sql = 'SELECT * FROM ad WHERE id = ? LIMIT 1';
+  connection.query(sql, [id], (err, result) => {
+    if (err) throw err;
+    if (result.length) return res.json(result[0]);
+    return res.json({});
   });
 });
 
