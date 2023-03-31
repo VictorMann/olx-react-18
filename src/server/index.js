@@ -295,14 +295,15 @@ app.get('/api/ads', (req, res) => {
   });
 });
 
-// endpoint ads
+// endpoint ad
 app.get('/api/ad/:id', (req, res) => {
   const { id } = req.params;
   const { s } = req.query;
   const sql = `
-  SELECT a.*, ai.image 
-  FROM olx.ad a 
-  INNER JOIN olx.ad_image ai ON ai.ad_id = a.id 
+  SELECT a.*, u.name AS user_name, u.email, u.uf, ai.image 
+  FROM ad a 
+  INNER JOIN user u ON u.id = a.user_id
+  INNER JOIN ad_image ai ON ai.ad_id = a.id 
   WHERE a.id = ?`;
   connection.query(sql, [id], (err, result) => {
     if (err) throw err;

@@ -20,6 +20,9 @@ export type CategoryType = {
 export type AdType = {
   id?: number;
   user_id?: number;
+  user_name?: string;
+  email?: string;
+  uf?: string;
   title?: string;
   image?: string;
   images?: string[];
