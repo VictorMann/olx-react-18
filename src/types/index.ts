@@ -12,15 +12,21 @@ export type UFType = {
 };
 
 export type CategoryType = {
-  id: number;
-  description: string;
-  image: string;
+  id?: number;
+  description?: string;
+  image?: string;
 };
 
 export type AdType = {
-  id: number;
-  title: string;
-  image: string;
-  price: number;
-  priceNegotiable: number | boolean;
+  id?: number;
+  user_id?: number;
+  title?: string;
+  image?: string;
+  images?: string[];
+  price?: number;
+  priceNegotiable?: number | boolean;
+  date_created?: string;
+  views?: number;
+  description?: string;
+  similares?: AdType[];
 };

@@ -90,6 +90,7 @@ connection.query('DROP DATABASE IF EXISTS olx', (err, result) => {
         });
       });
 
+
       // TABLE categoria
       connection.query(`CREATE TABLE categoria (
         id SMALLINT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
@@ -118,7 +119,6 @@ connection.query('DROP DATABASE IF EXISTS olx', (err, result) => {
         id SMALLINT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
         user_id SMALLINT UNSIGNED NOT NULL,
         title VARCHAR(100) NOT NULL,
-        image VARCHAR(1024) NOT NULL,
         price FLOAT UNSIGNED DEFAULT 0,
         priceNegotiable TINYINT DEFAULT 0,
         date_created DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -129,18 +129,46 @@ connection.query('DROP DATABASE IF EXISTS olx', (err, result) => {
         if (err) throw err;
 
         let data = [
-          {user_id: 1, title: "Notebook Acer 18''", image: `http://localhost:${PORT}/images/ads/notebook-1.gif`, price: 1599, priceNegotiable: 1, description: 'Processador Intel Core i5-11400H - Six Core – 11ª Geração. GPU Nvidia GeForce GTX 1650 com 4 GB de memória dedicada GDDR6 TGP de 50W'},
-          {user_id: 1, title: "Notebook Acer 18''", image: `http://localhost:${PORT}/images/ads/notebook-1.gif`, price: 1599, priceNegotiable: 0, description: 'Processador Intel Core i5-11400H - Six Core – 11ª Geração. GPU Nvidia GeForce GTX 1650 com 4 GB de memória dedicada GDDR6 TGP de 50W'},
-          {user_id: 1, title: "Notebook Acer 18''", image: `http://localhost:${PORT}/images/ads/notebook-1.gif`, price: 1599, priceNegotiable: 0, description: 'Processador Intel Core i5-11400H - Six Core – 11ª Geração. GPU Nvidia GeForce GTX 1650 com 4 GB de memória dedicada GDDR6 TGP de 50W'},
-          {user_id: 1, title: "Notebook Acer 18''", image: `http://localhost:${PORT}/images/ads/notebook-1.gif`, price: 1599, priceNegotiable: 0, description: 'Processador Intel Core i5-11400H - Six Core – 11ª Geração. GPU Nvidia GeForce GTX 1650 com 4 GB de memória dedicada GDDR6 TGP de 50W'},
+          {user_id: 1, title: "Notebook Acer 18''", price: 1599, priceNegotiable: 1, description: 'Processador Intel Core i5-11400H - Six Core – 11ª Geração. GPU Nvidia GeForce GTX 1650 com 4 GB de memória dedicada GDDR6 TGP de 50W'},
+          {user_id: 1, title: "Notebook Acer 17''", price: 2000, priceNegotiable: 0, description: 'Processador Intel Core i5-11400H - Six Core – 11ª Geração. GPU Nvidia GeForce GTX 1650 com 4 GB de memória dedicada GDDR6 TGP de 50W'},
+          {user_id: 1, title: "Notebook Acer 20''", price: 899, priceNegotiable: 0, description: 'Processador Intel Core i5-11400H - Six Core – 11ª Geração. GPU Nvidia GeForce GTX 1650 com 4 GB de memória dedicada GDDR6 TGP de 50W'},
         ]
-        .map(item => `(${item.user_id}, '${item.title}', '${item.image}', ${item.price}, ${item.priceNegotiable}, '${item.description}')`)
+        .map(item => `(${item.user_id}, '${item.title}', ${item.price}, ${item.priceNegotiable}, '${item.description}')`)
         .join(',');
 
-        connection.query(`INSERT INTO ad (user_id, title, image, price, priceNegotiable, description) VALUES ${data}`, (err, result) => {
+        connection.query(`INSERT INTO ad (user_id, title, price, priceNegotiable, description) VALUES ${data}`, (err, result) => {
           if (err) throw err;
+
+
+
+          // TABLE images Ad
+          connection.query(`CREATE TABLE ad_image (
+            id SMALLINT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
+            ad_id SMALLINT UNSIGNED NOT NULL,
+            image VARCHAR(1024) NOT NULL,
+            CONSTRAINT fk_ad_image FOREIGN KEY (ad_id) REFERENCES ad (id)
+          )`, (err, result) => {
+            if (err) throw err;
+
+            let data = [
+              {ad_id: 1, image: `http://localhost:${PORT}/images/ads/notebook-1.gif`},
+              {ad_id: 1, image: `http://localhost:${PORT}/images/ads/notebook-2.gif`},
+              {ad_id: 2, image: `http://localhost:${PORT}/images/ads/notebook-2.gif`},
+              {ad_id: 2, image: `http://localhost:${PORT}/images/ads/notebook-1.gif`},
+              {ad_id: 3, image: `http://localhost:${PORT}/images/ads/notebook-1.gif`},
+            ]
+            .map(item => `(${item.ad_id}, '${item.image}')`)
+            .join(',');
+
+            connection.query(`INSERT INTO ad_image (ad_id, image) VALUES ${data}`, (err, result) => {
+              if (err) throw err;
+            });
+          });
+
         });
       });
+
+
 
 
     });
@@ -256,7 +284,11 @@ app.get('/api/categoria', (req, res) => {
 
 // endpoint ads
 app.get('/api/ads', (req, res) => {
-  const sql = 'SELECT * FROM ad';
+  const sql = `
+  SELECT a.*, ai.image 
+  FROM olx.ad a 
+  INNER JOIN olx.ad_image ai ON ai.ad_id = a.id 
+  GROUP BY a.id`;
   connection.query(sql, (err, result) => {
     if (err) throw err;
     res.json(result);
@@ -266,11 +298,29 @@ app.get('/api/ads', (req, res) => {
 // endpoint ads
 app.get('/api/ad/:id', (req, res) => {
   const { id } = req.params;
-  const sql = 'SELECT * FROM ad WHERE id = ? LIMIT 1';
+  const { s } = req.query;
+  const sql = `
+  SELECT a.*, ai.image 
+  FROM olx.ad a 
+  INNER JOIN olx.ad_image ai ON ai.ad_id = a.id 
+  WHERE a.id = ?`;
   connection.query(sql, [id], (err, result) => {
     if (err) throw err;
-    if (result.length) return res.json(result[0]);
-    return res.json({});
+    if (result.length) {
+      let data = {...result[0]};
+      delete data.image;
+      data.images = [];
+      result.forEach(item => data.images.push(item.image));
+      if (s == 1) {
+        connection.query('SELECT * FROM ad WHERE user_id = ? AND id <> ?', [data.user_id, id], (err, result) => {
+          if (err) throw err;
+          data.similares = result;
+          return res.json(data);
+        });
+      } 
+      else return res.json(data);
+    }
+    else return res.json({});
   });
 });
 
