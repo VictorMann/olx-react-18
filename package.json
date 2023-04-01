@@ -28,6 +28,7 @@
     "react-scripts": "5.0.1",
     "react-slideshow-image": "^4.2.1",
     "redux": "^4.2.1",
+    "slugify": "^1.6.6",
     "styled-components": "^5.3.9",
     "typescript": "^4.9.5",
     "web-vitals": "^2.1.4"
