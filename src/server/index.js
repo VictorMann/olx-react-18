@@ -6,6 +6,7 @@ const bodyParser = require('body-parser');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const cors = require('cors');
+const slugify = require('slugify');
 
 const PORT = process.env.PORT || 3001;
 const SECRET = process.env.JWT_SECRET || 'sua-chave-secreta-aqui';
@@ -29,152 +30,171 @@ connection.connect((err) => {
   console.log('Conexão com o banco de dados MySQL estabelecida com sucesso!');
 });
 
-
-connection.query('DROP DATABASE IF EXISTS olx', (err, result) => {
-  if (err) throw err;
-
-  connection.query('CREATE DATABASE olx', (err, result) => {
-    if (err) throw err;
-
-    console.log("\nBanco OLX Criado com SUCESSO!");
-  
+var scriptDB = [
+  async () => new Promise((resolve, reject) => {
+    connection.query('DROP DATABASE IF EXISTS olx', (err, result) => {
+      if (err) throw err;
+      resolve();
+    });
+  }),
+  async () => new Promise((resolve, reject) => {
+    connection.query('CREATE DATABASE olx', (err, result) => {
+      if (err) throw err;
+      console.log("\n Banco 'olx' CRIADO");
+      resolve();
+    });
+  }),
+  async () => new Promise((resolve, reject) => {
     connection.query('USE olx', (err, result) => {
       if (err) throw err;
-      
-      // TABLE user
-      connection.query(`CREATE TABLE user (
-          id SMALLINT UNSIGNED PRIMARY KEY NOT NULL AUTO_INCREMENT,
-          name VARCHAR(250) NOT NULL,
-          email VARCHAR(250) NOT NULL,
-          uf CHAR(2) NOT NULL,
-          password VARCHAR(250) NOT NULL
-        )`
+      resolve();
+    });
+  }),
+  async () => new Promise((resolve, reject) => {
+    // TABLE user
+    connection.query(`CREATE TABLE user (
+      id SMALLINT UNSIGNED PRIMARY KEY NOT NULL AUTO_INCREMENT,
+      name VARCHAR(250) NOT NULL,
+      email VARCHAR(250) NOT NULL,
+      uf CHAR(2) NOT NULL,
+      password VARCHAR(250) NOT NULL
+    )`
+    , (err, result) => {
+      if (err) throw err;
+      console.log("\n Created 'user' table! [SUCCESS]");
+      connection.query(`
+        INSERT INTO user (name, email, uf, password) 
+        VALUES 
+        ('Admin', '${USER_EMAIL}', 'SP', '${hashedPassword}')`
       , (err, result) => {
         if (err) throw err;
-        // console.log("\n", result);
-    
-        connection.query(`
-          INSERT INTO user (name, email, uf, password) 
-          VALUES 
-          ('Admin', '${USER_EMAIL}', 'SP', '${hashedPassword}')`
-        , (err, result) => {
-          if (err) throw err;
-          // console.log("\n", result);
-  
-          // Finaliza a conexão
-          // connection.end(err => {
-          //   if (err) throw err;
-          //   console.log('Conexão encerrada.');
-          // });
-        });
+        console.log("\n inserted 'user' table data! [SUCCESS]");
+        resolve();
       });
-
-
-      // TABLE uf
-      connection.query(`CREATE TABLE uf (
-        id CHAR(2) NOT NULL PRIMARY KEY,
-        name CHAR(255) NOT NULL
-      )`, (err, result) => {
-        if (err) throw err;
-
-        let ufs = [
-          {sigla: 'SP', name: 'São Paulo'},
-          {sigla: 'RJ', name: 'Rio de Janeiro'},
-          {sigla: 'MG', name: 'Minas Gerais'},
-        ]
-        .map(item => `('${item.sigla}', '${item.name}')`)
-        .join(',');
-
-        connection.query(`INSERT INTO uf (id, name) VALUES ${ufs}`, (err, result) => {
-          if (err) throw err;
-        });
-      });
-
-
-      // TABLE categoria
-      connection.query(`CREATE TABLE categoria (
-        id SMALLINT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
-        description VARCHAR(100) NOT NULL,
-        image VARCHAR(1024) NOT NULL
-      )`, (err, result) => {
-        if (err) throw err;
-
-        let data = [
-          {name: 'Bebês', image: `http://localhost:${PORT}/images/bebes.gif`},
-          {name: 'Carros', image: `http://localhost:${PORT}/images/carros.gif`},
-          {name: 'Roupas', image: `http://localhost:${PORT}/images/roupas.gif`},
-          {name: 'Eletrônicos', image: `http://localhost:${PORT}/images/eletronicos.gif`},
-        ]
-        .map(item => `('${item.name}', '${item.image}')`)
-        .join(',');
-
-        connection.query(`INSERT INTO categoria (description, image) VALUES ${data}`, (err, result) => {
-          if (err) throw err;
-        });
-      });
-
-
-      // TABLE Ad
-      connection.query(`CREATE TABLE ad (
-        id SMALLINT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
-        user_id SMALLINT UNSIGNED NOT NULL,
-        title VARCHAR(100) NOT NULL,
-        price FLOAT UNSIGNED DEFAULT 0,
-        priceNegotiable TINYINT DEFAULT 0,
-        date_created DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        views SMALLINT UNSIGNED NOT NULL DEFAULT 0,
-        description TEXT,
-        CONSTRAINT fk_ad_user FOREIGN KEY (user_id) REFERENCES user (id)
-      )`, (err, result) => {
-        if (err) throw err;
-
-        let data = [
-          {user_id: 1, title: "Notebook Acer 18''", price: 1599, priceNegotiable: 1, description: 'Processador Intel Core i5-11400H - Six Core – 11ª Geração. GPU Nvidia GeForce GTX 1650 com 4 GB de memória dedicada GDDR6 TGP de 50W'},
-          {user_id: 1, title: "Notebook Acer 17''", price: 2000, priceNegotiable: 0, description: 'Processador Intel Core i5-11400H - Six Core – 11ª Geração. GPU Nvidia GeForce GTX 1650 com 4 GB de memória dedicada GDDR6 TGP de 50W'},
-          {user_id: 1, title: "Notebook Acer 20''", price: 899, priceNegotiable: 0, description: 'Processador Intel Core i5-11400H - Six Core – 11ª Geração. GPU Nvidia GeForce GTX 1650 com 4 GB de memória dedicada GDDR6 TGP de 50W'},
-        ]
-        .map(item => `(${item.user_id}, '${item.title}', ${item.price}, ${item.priceNegotiable}, '${item.description}')`)
-        .join(',');
-
-        connection.query(`INSERT INTO ad (user_id, title, price, priceNegotiable, description) VALUES ${data}`, (err, result) => {
-          if (err) throw err;
-
-
-
-          // TABLE images Ad
-          connection.query(`CREATE TABLE ad_image (
-            id SMALLINT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
-            ad_id SMALLINT UNSIGNED NOT NULL,
-            image VARCHAR(1024) NOT NULL,
-            CONSTRAINT fk_ad_image FOREIGN KEY (ad_id) REFERENCES ad (id)
-          )`, (err, result) => {
-            if (err) throw err;
-
-            let data = [
-              {ad_id: 1, image: `http://localhost:${PORT}/images/ads/notebook-1.gif`},
-              {ad_id: 1, image: `http://localhost:${PORT}/images/ads/notebook-2.gif`},
-              {ad_id: 2, image: `http://localhost:${PORT}/images/ads/notebook-2.gif`},
-              {ad_id: 2, image: `http://localhost:${PORT}/images/ads/notebook-1.gif`},
-              {ad_id: 3, image: `http://localhost:${PORT}/images/ads/notebook-1.gif`},
-            ]
-            .map(item => `(${item.ad_id}, '${item.image}')`)
-            .join(',');
-
-            connection.query(`INSERT INTO ad_image (ad_id, image) VALUES ${data}`, (err, result) => {
-              if (err) throw err;
-            });
-          });
-
-        });
-      });
-
-
-
-
     });
-  });
-});
+  }),
+  async () => new Promise((resolve, reject) => {
+    // TABLE uf
+    connection.query(`CREATE TABLE uf (
+      id CHAR(2) NOT NULL PRIMARY KEY,
+      name CHAR(255) NOT NULL
+    )`, (err, result) => {
+      if (err) throw err;
+      console.log("\n Created 'uf' table! [SUCCESS]");
+      let ufs = [
+        {sigla: 'SP', name: 'São Paulo'},
+        {sigla: 'RJ', name: 'Rio de Janeiro'},
+        {sigla: 'MG', name: 'Minas Gerais'},
+      ]
+      .map(item => `('${item.sigla}', '${item.name}')`)
+      .join(',');
 
+      connection.query(`INSERT INTO uf (id, name) VALUES ${ufs}`, (err, result) => {
+        if (err) throw err;
+        console.log("\n inserted 'uf' table data! [SUCCESS]");
+        resolve();
+      });
+    });
+  }),
+  async () => new Promise((resolve, reject) => {
+    // TABLE categoria
+    connection.query(`CREATE TABLE categoria (
+      id SMALLINT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
+      description VARCHAR(100) NOT NULL,
+      slug VARCHAR(100) NOT NULL,
+      image VARCHAR(1024) NOT NULL
+    )`, (err, result) => {
+      if (err) throw err;
+      console.log("\n Created 'categoria' table! [SUCCESS]");
+
+      let data = [
+        {name: 'Bebês', slug: slugify('Bebês', {lower: true}), image: `http://localhost:${PORT}/images/bebes.gif`},
+        {name: 'Carros', slug: slugify('Carros', {lower: true}), image: `http://localhost:${PORT}/images/carros.gif`},
+        {name: 'Roupas', slug: slugify('Roupas', {lower: true}), image: `http://localhost:${PORT}/images/roupas.gif`},
+        {name: 'Eletrônicos', slug: slugify('Eletrônicos', {lower: true}), image: `http://localhost:${PORT}/images/eletronicos.gif`},
+      ]
+      .map(item => `('${item.name}', '${item.slug}', '${item.image}')`)
+      .join(',');
+
+      connection.query(`INSERT INTO categoria (description, slug, image) VALUES ${data}`, (err, result) => {
+        if (err) throw err;
+        console.log("\n inserted 'categoria' table data! [SUCCESS]");
+        resolve();
+      });
+    });
+  }),
+  async () => new Promise((resolve, reject) => {
+    // TABLE Ad
+    connection.query(`CREATE TABLE ad (
+      id SMALLINT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
+      user_id SMALLINT UNSIGNED NOT NULL,
+      categoria_id SMALLINT UNSIGNED NOT NULL,
+      title VARCHAR(100) NOT NULL,
+      price FLOAT UNSIGNED DEFAULT 0,
+      priceNegotiable TINYINT DEFAULT 0,
+      date_created DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      views SMALLINT UNSIGNED NOT NULL DEFAULT 0,
+      description TEXT,
+      CONSTRAINT fk_ad_user FOREIGN KEY (user_id) REFERENCES user (id),
+      CONSTRAINT fk_ad_categoria FOREIGN KEY (categoria_id) REFERENCES categoria (id)
+    )`, (err, result) => {
+      if (err) throw err;
+      console.log("\n Created 'ad' table! [SUCCESS]");
+
+      let data = [
+        {user_id: 1, categoria_id: 4, title: "Notebook Acer 18''", price: 1599, priceNegotiable: 1, description: 'Processador Intel Core i5-11400H - Six Core – 11ª Geração. GPU Nvidia GeForce GTX 1650 com 4 GB de memória dedicada GDDR6 TGP de 50W'},
+        {user_id: 1, categoria_id: 4, title: "Notebook Acer 18''", price: 799, priceNegotiable: 0, description: 'Processador Intel Core i5-11400H - Six Core – 11ª Geração. GPU Nvidia GeForce GTX 1650 com 4 GB de memória dedicada GDDR6 TGP de 50W'},
+        {user_id: 1, categoria_id: 4, title: "Notebook Acer 18''", price: 2000, priceNegotiable: 0, description: 'Processador Intel Core i5-11400H - Six Core – 11ª Geração. GPU Nvidia GeForce GTX 1650 com 4 GB de memória dedicada GDDR6 TGP de 50W'},
+      ]
+      .map(item => `(${item.user_id}, ${item.categoria_id}, '${item.title}', ${item.price}, ${item.priceNegotiable}, '${item.description}')`)
+      .join(',');
+
+      connection.query(`INSERT INTO ad (user_id, categoria_id, title, price, priceNegotiable, description) VALUES ${data}`, (err, result) => {
+        if (err) throw err;
+        console.log("\n inserted 'ad' table data! [SUCCESS]");
+        resolve();
+      });
+    });
+  }),
+  async () => new Promise((resolve, reject) => {
+    // TABLE ad_image
+    connection.query(`CREATE TABLE ad_image (
+      id SMALLINT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
+      ad_id SMALLINT UNSIGNED NOT NULL,
+      image VARCHAR(1024) NOT NULL,
+      CONSTRAINT fk_ad_image FOREIGN KEY (ad_id) REFERENCES ad (id)
+    )`, (err, result) => {
+      if (err) throw err;
+      console.log("\n Created 'ad_image' table! [SUCCESS]");
+
+      let data = [
+        {ad_id: 1, image: `http://localhost:${PORT}/images/ads/notebook-1.gif`},
+        {ad_id: 1, image: `http://localhost:${PORT}/images/ads/notebook-2.gif`},
+        {ad_id: 2, image: `http://localhost:${PORT}/images/ads/notebook-2.gif`},
+        {ad_id: 2, image: `http://localhost:${PORT}/images/ads/notebook-1.gif`},
+        {ad_id: 3, image: `http://localhost:${PORT}/images/ads/notebook-1.gif`},
+      ]
+      .map(item => `(${item.ad_id}, '${item.image}')`)
+      .join(',');
+
+      connection.query(`INSERT INTO ad_image (ad_id, image) VALUES ${data}`, (err, result) => {
+        if (err) throw err;
+        console.log("\n inserted 'ad_image' table data! [SUCCESS]");
+        resolve();
+      });
+    });
+  }),
+  async () => {
+    // Finaliza a conexão
+    // connection.end(err => {
+    //   if (err) throw err;
+    //   console.log('Conexão encerrada.');
+    // });
+  },
+];
+
+// inicializa scriptDB
+(async () => { for (const fn of scriptDB) await fn() })();
 
 
 // Crie um aplicativo Express
@@ -300,9 +320,17 @@ app.get('/api/ad/:id', (req, res) => {
   const { id } = req.params;
   const { s } = req.query;
   const sql = `
-  SELECT a.*, u.name AS user_name, u.email, u.uf, ai.image 
+  SELECT 
+    a.*, 
+    u.name AS user_name, 
+    u.email, 
+    u.uf, 
+    c.description AS categoria_description, 
+    c.slug AS categoria_slug, 
+    ai.image 
   FROM ad a 
   INNER JOIN user u ON u.id = a.user_id
+  INNER JOIN categoria c ON c.id = a.categoria_id
   INNER JOIN ad_image ai ON ai.ad_id = a.id 
   WHERE a.id = ?`;
   connection.query(sql, [id], (err, result) => {
@@ -313,7 +341,13 @@ app.get('/api/ad/:id', (req, res) => {
       data.images = [];
       result.forEach(item => data.images.push(item.image));
       if (s == 1) {
-        connection.query('SELECT * FROM ad WHERE user_id = ? AND id <> ?', [data.user_id, id], (err, result) => {
+        connection.query(`
+        SELECT a.*, ai.image 
+        FROM ad a 
+        INNER JOIN ad_image ai ON ai.ad_id = a.id
+        WHERE a.user_id = ? 
+        AND a.id <> ?
+        GROUP BY a.id`, [data.user_id, id], (err, result) => {
           if (err) throw err;
           data.similares = result;
           return res.json(data);
