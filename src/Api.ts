@@ -3,7 +3,7 @@ import Cookies from "js-cookie";
 
 import { trataErrorResponse } from "./helpers";
 import { isLogged } from './helpers/authHandler';
-import { CategoryType, ErrorType, LoginType, UFType } from "./types";
+import { AdType, CategoryType, ErrorType, LoginType, UFType } from "./types";
 
 const http = axios.create({
   baseURL: 'http://localhost:3001'
@@ -104,9 +104,28 @@ export const api = {
    * @returns 
    */
   async ads(filters: Object) {
-    let data: ErrorType | any;
+    let data: AdType[] | ErrorType | any;
     try {
       const response = await http.get('/api/ads', { params: filters });
+      data = response.data;
+    } catch (e: any) {
+      data = trataErrorResponse(e);
+    }
+
+    return data;
+  },
+
+  /**
+   * Retorna o Ad
+   * 
+   * @param id {number} ID do Ad
+   * @param similares {boolean} opção para que no retorno traga os anúncio relacionados do mesmo proprietário do post
+   * @returns 
+   */
+  async ad(id: number, similares: boolean = false) {
+    let data: AdType & ErrorType;
+    try {
+      const response = await http.get('/api/ad/'+ id, { params: { s: similares ? 1 : 0 } });
       data = response.data;
     } catch (e: any) {
       data = trataErrorResponse(e);
