@@ -33,14 +33,14 @@ function Comp() {
                   type="button" 
                   className='btn btn-link text-decoration-none pe-5'
                   onClick={() => handleLogout()}>Sair</button></li>
-                <li><Link className='btn btn-sm btn-primary' to="/post-an-ad">Poste um anúncio</Link></li>
+                <li><Link className='btn btn-sm btn-warning' to="/post-an-ad">Poste um anúncio</Link></li>
               </>
             }
             {!logged &&
               <>
                 <li><Link to="/signin" className='text-decoration-none pe-5'>Login</Link></li>
                 <li><Link to="/signup" className='text-decoration-none pe-5'>Cadastrar</Link></li>
-                <li><Link className='btn btn-sm btn-primary' to="/signin">Poste um anúncio</Link></li>
+                <li><Link className='btn btn-sm btn-warning shadow-sm text-white' to="/signin">Poste um anúncio</Link></li>
               </>
             }
           </ul>
