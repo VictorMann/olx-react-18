@@ -14,12 +14,16 @@ export type UFType = {
 export type CategoryType = {
   id?: number;
   description?: string;
+  slug?: string;
   image?: string;
 };
 
 export type AdType = {
   id?: number;
   user_id?: number;
+  categoria_id?: number;
+  categoria_description?: string;
+  categoria_slug?: string;
   user_name?: string;
   email?: string;
   uf?: string;
