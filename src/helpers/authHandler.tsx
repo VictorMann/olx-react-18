@@ -17,7 +17,7 @@ export const doLogout = () => {
   Cookies.remove('token');
 };
 
-export const routePrivate = (children: JSX.Element): JSX.Element => {
+export const privateRoute = (children: JSX.Element): JSX.Element => {
   return isLogged()
   ? children
   : <Navigate to="/signin" />
