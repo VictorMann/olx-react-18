@@ -51,3 +51,14 @@ export const delay = async (time: number = 500) => {
 		setTimeout(() => resolve(null), time);
 	});
 }
+
+/**
+ * Verifica se o tipo do arquivo corresponde a uma imagem
+ * 
+ * @param type {string}
+ * @returns {boolean}
+ */
+export const onlyTypesOfImages = (type: string): boolean => {
+	const allowed = ['image/png', 'image/jpg', 'image/jpeg', 'image/gif', 'image/bmp'];
+	return allowed.some(a => a === type);
+};
