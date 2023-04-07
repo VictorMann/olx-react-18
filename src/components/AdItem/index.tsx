@@ -17,7 +17,7 @@ function Comp({ item }: Props) {
   return (
     <C.Container className='border rounded p-1'>
       <Link to={`/ad/${item.id}`} className="text-decoration-none">
-        <figure className='m-0'>
+        <figure className='m-0 d-flex align-items-center bg-white'>
           <img src={item.image} alt="" className='w-100 rounded' />
         </figure>
         <ul className='list-unstyled bg-white m-0 border-top p-2 rounded'>
