@@ -8,16 +8,51 @@ const bcrypt = require('bcrypt');
 const cors = require('cors');
 const slugify = require('slugify');
 const multer = require('multer'); // usado para tratar o salvamento de arquivos
-const { extname } = require('path');
+const path = require('path');
 // const mime = require('mime-types');
+
+const PORT = process.env.PORT || 3001;
+const SECRET = process.env.JWT_SECRET || 'sua-chave-secreta-aqui';
+
+const USER_PASSWORD = process.env.USER_PASSWORD || '123'; 
+const USER_EMAIL = process.env.USER_EMAIL || 'admin@admin.com';
+const hashedPassword = bcrypt.hashSync(USER_PASSWORD, 10);
+
+/**
+ * Remover um diretório, incluindo todos os seus arquivos e subdiretórios, 
+ * mesmo que não esteja vazio
+ * @param {string} dir diretório a ser removido Exp.: "./images/tmp/"
+ */
+function removeDirectory(dir) {
+  if (fs.existsSync(dir)) {
+    fs.readdirSync(dir).forEach((file) => {
+      const filePath = path.join(dir, file);
+      if (fs.lstatSync(filePath).isDirectory()) {
+        removeDirectory(filePath);
+      } else {
+        fs.unlinkSync(filePath);
+      }
+    });
+    fs.rmdirSync(dir);
+    console.log(`O diretório ${dir} foi removido com sucesso!`);
+  } else {
+    console.log(`O diretório ${dir} não existe.`);
+  }
+}
+
+
+// Remove Diretorio Temporário de Images
+removeDirectory(process.env.TEMP_IMAGE_DIR);
 
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, 'images/tmp/');
+    // Caso o diretório temporário de imagens não exita crie-o
+    if (!fs.existsSync(process.env.TEMP_IMAGE_DIR)) fs.mkdirSync(process.env.TEMP_IMAGE_DIR);
+    cb(null, process.env.TEMP_IMAGE_DIR);
   },
   filename: function (req, file, cb) {
-    const ext = extname(file.originalname);
+    const ext = path.extname(file.originalname);
     const fileName = `${Date.now()}_${Math.floor(Math.random() * 10000)}${ext}`;
     cb(null, fileName);
   }
@@ -34,13 +69,6 @@ const upload = multer({
     }
   }
 });
-
-const PORT = process.env.PORT || 3001;
-const SECRET = process.env.JWT_SECRET || 'sua-chave-secreta-aqui';
-
-const USER_PASSWORD = process.env.USER_PASSWORD || '123'; 
-const USER_EMAIL = process.env.USER_EMAIL || 'admin@admin.com';
-const hashedPassword = bcrypt.hashSync(USER_PASSWORD, 10);
 
 
 // Crie uma conexão com o banco de dados
