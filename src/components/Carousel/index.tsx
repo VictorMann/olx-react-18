@@ -5,7 +5,9 @@ const divStyle = {
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-  backgroundSize: 'cover',
+  backgroundSize: 'contain',
+  backgroundPosition: 'center',
+  backgroundRepeat: 'no-repeat',
   height: '400px'
 }
 
