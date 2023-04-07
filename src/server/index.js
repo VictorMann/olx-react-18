@@ -7,6 +7,33 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const cors = require('cors');
 const slugify = require('slugify');
+const multer = require('multer'); // usado para tratar o salvamento de arquivos
+const { extname } = require('path');
+// const mime = require('mime-types');
+
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'images/tmp/');
+  },
+  filename: function (req, file, cb) {
+    const ext = extname(file.originalname);
+    const fileName = `${Date.now()}_${Math.floor(Math.random() * 10000)}${ext}`;
+    cb(null, fileName);
+  }
+});
+
+const upload = multer({
+  storage,
+  fileFilter: function (req, file, cb) {
+    const allowedMimes = ['image/jpeg', 'image/png', 'image/gif'];
+    if (allowedMimes.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Tipo de arquivo inválido.'));
+    }
+  }
+});
 
 const PORT = process.env.PORT || 3001;
 const SECRET = process.env.JWT_SECRET || 'sua-chave-secreta-aqui';
@@ -359,6 +386,27 @@ app.get('/api/ad/:id', (req, res) => {
   });
 });
 
+app.post('/api/ad', verifyToken, upload.array('images', 5), (req, res) => {
+  connection.query('SELECT id FROM user WHERE email = ?', [req.email], (err, result) => {
+    if (err) throw err;
+    if (result.length) {
+      const { id } = result[0];
+      const sql = 'INSERT INTO ad (user_id, categoria_id, title, price, priceNegotiable, description) VALUES (?, ?, ?, ?, ?, ?)';
+      connection.query(sql, [id, req.body.category, req.body.title, Number(req.body.price.replace(',','.')), Number(req.body.priceNegotiable), req.body.description], (err, result) => {
+        if (err) throw err;
+        console.log(result);
+        const ad_id = result.insertId;
+        const values = [].map.call(req.files, img => `(${ad_id}, 'http://localhost:${PORT}/images/tmp/${img.filename}')`).join(',');
+        connection.query(`INSERT INTO ad_image (ad_id, image) VALUES ${values}`, (err, result) => {
+          if (err) throw err;
+          res.json({id: ad_id, message: 'success'});
+        });
+      })
+    } 
+    else return res.status(500).json({ error: 'Erro Interno: Favor deslogar e logar novamente' });
+  });
+});
+
 
 // endpoint protegido que só possa ser acessado com um token válido
 app.get('/protected', verifyToken, (req, res) => {
@@ -389,6 +437,16 @@ app.get('/images/:name', (req, res) => {
 app.get('/images/ads/:name', (req, res) => {
   const { name } = req.params;
   const filePath = __dirname + '\\images\\ads\\' + name;
+  fs.access(filePath, fs.constants.F_OK, err => {
+    if (err) res.status(404).send('Arquivo não encontrado');
+    else res.sendFile(filePath);
+  });
+});
+
+// endpoint images Ads (Temporária, Ads criados pelo usuário acessando o site)
+app.get('/images/tmp/:name', (req, res) => {
+  const { name } = req.params;
+  const filePath = __dirname + '\\images\\tmp\\' + name;
   fs.access(filePath, fs.constants.F_OK, err => {
     if (err) res.status(404).send('Arquivo não encontrado');
     else res.sendFile(filePath);

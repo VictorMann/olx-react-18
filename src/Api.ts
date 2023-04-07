@@ -134,6 +134,25 @@ export const api = {
     return data;
   },
 
+  /**
+   * Retorna o Ad
+   * 
+   * @param id {number} ID do Ad
+   * @param similares {boolean} opção para que no retorno traga os anúncio relacionados do mesmo proprietário do post
+   * @returns 
+   */
+  async AdSend(formData: FormData) {
+    let data: AdType & ErrorType;
+    try {
+      const response = await http.post('/api/ad', formData, {headers: {'Authorization': Cookies.get('token')}});
+      data = response.data;
+    } catch (e: any) {
+      data = trataErrorResponse(e);
+    }
+
+    return data;
+  },
+
   async myCount() {
     let data: any = {};
     try {
