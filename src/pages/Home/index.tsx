@@ -49,7 +49,7 @@ function Page() {
   const handleSubmit = (e: React.ChangeEvent<HTMLFormElement>) => {
     e.preventDefault();
     let params: any = {q, stateLoc};
-    for (let prop in params) params[prop] = window.encodeURI(params[prop]);
+    for (let prop in params) params[prop] = params[prop];
     let oURLParams = new URLSearchParams(params);
     navigate('/ads?' + oURLParams.toString());
   };
