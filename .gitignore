@@ -23,4 +23,4 @@ yarn-debug.log*
 yarn-error.log*
 
 # arquivos temporários
-/src/**/tmp/*
+/**/tmp/*
