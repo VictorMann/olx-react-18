@@ -62,3 +62,22 @@ export const onlyTypesOfImages = (type: string): boolean => {
 	const allowed = ['image/png', 'image/jpg', 'image/jpeg', 'image/gif', 'image/bmp'];
 	return allowed.some(a => a === type);
 };
+
+/**
+ * Retorna o próprio dado, caso seja null|undefined retorna '' (string vazia)
+ * passagem do segunda parâmetro possibilita converter o dado 
+ * 
+ * @param data {any} dado ser a
+ * @param type {string|null} (opcional) converte o dado caso ele exista  
+ * @returns {any}
+ */
+export const get = (data: any, type: string|null = null) => {
+	if (['Null', 'Undefined'].indexOf(classOf(data)) !== -1) return '';
+	if (type) {
+		switch (type) {
+			case 'string': return String(data);
+			case 'number': return Number(data);
+		}
+	}
+	return data;
+};
