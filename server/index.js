@@ -184,14 +184,46 @@ app.get('/api/categoria', (req, res) => {
 
 // endpoint ads
 app.get('/api/ads', (req, res) => {
-  const sql = `
+  let { category, uf, q, limit, page } = req.query;
+  let filters = [];
+  let sql = `
   SELECT a.*, ai.image 
   FROM ad a 
-  INNER JOIN ad_image ai ON ai.ad_id = a.id 
-  GROUP BY a.id`;
-  db.all(sql, (err, result) => {
+  INNER JOIN ad_image ai ON ai.ad_id = a.id `;
+
+  if (uf) {
+    sql = sql + 'INNER JOIN user u ON u.id = a.user_id ';
+    filters.push('u.uf = ?');
+  }
+  if (category) filters.push('a.categoria_id = ?');
+  if (q) filters.push("a.title LIKE ?");
+
+  if (filters.length) sql = sql + `WHERE ${filters.join(' AND ')} `;
+
+  sql = sql + 'GROUP BY a.id';
+
+  
+  filters = [];
+  if (uf) filters.push(uf);
+  if (category) filters.push(category);
+  if (q) filters.push(`%${q}%`);
+
+  db.all(sql, filters, (err, result) => {
     if (err) throw err;
-    res.json(result);
+    if (result.length) {
+      const currentPage = (page && page > 1) ? page : 1;
+      limit = (limit && limit > 2) ? limit : 2;
+      const totalPage = Math.ceil(result.length / limit);
+      
+      const offset = (currentPage - 1) * limit;
+
+      sql = `${sql} LIMIT ${limit} OFFSET ${offset}`;
+      db.all(sql, filters, (err, result) => {
+        if (err) throw err;
+        res.json({ currentPage, totalPage, result });
+      });
+    } 
+    else res.json({ currentPage: 1, totalPage: 1, result: [] });
   });
 });
 

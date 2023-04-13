@@ -104,7 +104,7 @@ export const api = {
    * @returns 
    */
   async ads(filters: Object) {
-    let data: AdType[] | ErrorType | any;
+    let data: {} | ErrorType | any;
     try {
       const response = await http.get('/api/ads', { params: filters });
       data = response.data;

@@ -17,30 +17,27 @@ function Page() {
   const [ads, setAds] = useState<AdType[]>([]);
 
   useEffect(() => {
-    const fn = async () => {
+    (async () => {
       const resp = await api.uf();
       if (resp.error) alert(resp.error);
       else setUFs(resp);
-    };
-    fn();
+    })();
   }, []);
 
   useEffect(() => {
-    const fn = async () => {
+    (async () => {
       const resp = await api.categoria();
       if (resp.error) alert(resp.error);
       else setCategories(resp);
-    };
-    fn();
+    })();
   }, []);
 
   useEffect(() => {
-    const fn = async () => {
+    (async () => {
       const resp = await api.ads({});
       if (resp.error) alert(resp.error);
-      else setAds(resp);
-    };
-    fn();
+      else setAds(resp.result);
+    })();
   }, []);
 
   const handleChangeSearch = (e: React.ChangeEvent<HTMLInputElement>) => setQ(e.target.value);
