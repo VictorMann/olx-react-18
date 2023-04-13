@@ -67,12 +67,13 @@ export const onlyTypesOfImages = (type: string): boolean => {
  * Retorna o próprio dado, caso seja null|undefined retorna '' (string vazia)
  * passagem do segunda parâmetro possibilita converter o dado 
  * 
- * @param data {any} dado ser a
+ * @param data {any} dado ser verificado
  * @param type {string|null} (opcional) converte o dado caso ele exista  
+ * @param defalut {any} (opcional) valor default
  * @returns {any}
  */
-export const get = (data: any, type: string|null = null) => {
-	if (['Null', 'Undefined'].indexOf(classOf(data)) !== -1) return '';
+export const get = (data: any, type: string|null = null, defalut: any = '') => {
+	if (['Null', 'Undefined'].indexOf(classOf(data)) !== -1) return defalut;
 	if (type) {
 		switch (type) {
 			case 'string': return String(data);

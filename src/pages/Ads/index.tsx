@@ -1,13 +1,17 @@
 import { useEffect, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { AdType, CategoryType, UFType } from '../../types';
 import * as C from './styles';
 import { delay, get } from '../../helpers';
 import { api } from '../../Api';
 
 import AdItem from '../../components/AdItem';
-import { useQueryString } from '../../hooks';
+import Pagination from '../../components/Pagination';
 
+var timerDigitando: any = 0;
+var liberaEffect1: boolean = false;
+var liberaEffect2: boolean = false;
+var flagExecuteSearchPagination: boolean = true;
 
 function Page() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -20,6 +24,12 @@ function Page() {
   const [ufs, setUfs] = useState<UFType[]>([]);
   const [cats, setCats] = useState<CategoryType[]>([]);
   const [ads, setAds] = useState<AdType[]>([]);
+
+  const [currentPage, setCurrentPage] = useState<number>(+get(searchParams.get('page'), 'number', 1));
+  const [totalPage, setTotalPage] = useState<number>(1);
+
+  // provoca um delay para fazer a pesquisa na Api de 2s
+  const [digitando, setDigitando] = useState<boolean>(false);
   
   useEffect(() => {
     (async () => {
@@ -38,21 +48,86 @@ function Page() {
   }, []);
 
   useEffect(() => {
-    if (q.length > 2) searchParams.set('q', q);
-    else if (q === '') searchParams.delete('q');
+    if (!liberaEffect2) { liberaEffect2 = true; return; }
+    flagExecuteSearchPagination = false;
+    setLoading(true);
+
+    /**
+     * Mudança na URL
+     */
+    searchParams.delete('page');
     if (uf) searchParams.set('stateLoc', uf);
     else searchParams.delete('stateLoc');
     if (category) searchParams.set('category', category);
     else searchParams.delete('category');
     setSearchParams(searchParams);
-  }, [q, uf, category]);
+    setCurrentPage(1);
 
-  const handleChangeQ = (e: React.ChangeEvent<HTMLInputElement>) => setQ(e.target.value);
+    /**
+     * Busca dos Itens
+     */
+    (async () => {
+      await searchAds(1);
+      setLoading(false);
+    })();
+
+
+  }, [uf, category]);
+
+  useEffect(() => {
+    if (!liberaEffect1) { liberaEffect1 = true; return; } 
+    flagExecuteSearchPagination = false;
+    setLoading(true);
+    (async () => {
+      if (!digitando) {
+        if (q.length > 2 || q === '') {
+          if (q === '') searchParams.delete('q');
+          else searchParams.set('q', q);
+          setSearchParams(searchParams);
+          setCurrentPage(1);
+          await searchAds(1);
+        }
+        setLoading(false);
+      }
+    })();
+  }, [digitando, q]);
+
+  useEffect(() => {
+    if (!flagExecuteSearchPagination) return;
+    setLoading(true);
+    (async () => {
+      await searchAds();
+      setLoading(false);
+    })();
+  }, [currentPage]);
+
+  async function searchAds(page: number = currentPage) {
+    const resp = await api.ads({ category, uf, q, page });
+    await delay(200); // 200ms de espera
+    if (resp.error) alert(resp.error);
+    else {
+      setAds(resp.result);
+      setCurrentPage(+resp.currentPage);
+      setTotalPage(+resp.totalPage);
+    }
+  }
+
+  const handleChangeQ = (e: React.ChangeEvent<HTMLInputElement>) => {
+    clearTimeout(timerDigitando);
+    timerDigitando = setTimeout(() => setDigitando(false), 700);
+    setDigitando(true);
+    setQ(e.target.value);
+  };
   const handleChangeUf = (e: React.ChangeEvent<HTMLSelectElement>) => setUf(e.target.value);
   // const handleChangeCat = (e: React.ChangeEvent<HTMLSelectElement>) => setCategory(e.target.value);
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+  };
+
+  const handleClickPaginate = (page: number) => {
+    flagExecuteSearchPagination = true;
+    setCurrentPage(page);
   };
 
   return (
@@ -110,9 +185,21 @@ function Page() {
 
           </form>
 
-          <div className="ad-list col-9 border">
-            ...
-            {ads.map(item => <AdItem key={item.id} item={item} />)}
+          <div className="col-9 p-0">
+            <div className="ad-list mb-4">
+              {loading &&
+                new Array(4).fill(0).map((_, index) => <C.Fake key={index} height={378} />)
+              }
+              {!loading && ads && ads.map(item => <AdItem key={item.id} item={item} />)}
+            </div>
+            
+            {ads && ads.length > 0 && totalPage > 1 &&
+              <Pagination 
+                url='/ads' 
+                page={currentPage} 
+                totalPage={totalPage} 
+                onClick={handleClickPaginate} />
+            }
           </div>
         </div>
       </div>
