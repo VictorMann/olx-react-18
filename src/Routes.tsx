@@ -18,6 +18,7 @@ export default () => (
     <Route path='/signup' element={<SignUp />} />
     <Route path='/ad/:id' element={<Ad />} />
     <Route path='/post-an-ad' element={privateRoute(<AddAd />)} />
+    <Route path='/my-account' element={privateRoute(<MyAccount />)} />
     <Route path='/ads' element={<Ads />} />
     <Route path='*' element={<NotFound />} />
   </Routes>
