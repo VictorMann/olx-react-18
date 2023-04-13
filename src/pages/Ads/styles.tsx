@@ -67,5 +67,6 @@ type FakeProps = {
 
 export const Fake = styled.div<FakeProps>`
 background-color: #DDD;
-padding: ${props => props.height ?? 10}px 0;
+// padding: ${props => props.height ?? 10}px 0;
+height: ${props => props.height ?? 10}px;
 `;
