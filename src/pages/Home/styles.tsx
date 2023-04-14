@@ -10,27 +10,90 @@ form {
   background: #b5cf25;
 }
 
-.ad-list {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  grid-gap: 15px;
+.area-busca--1 > *:not(:last-child) {
+  margin-bottom: .7em;
+}
+.list-categories {
+  flex-wrap: wrap;
 
-  figure { min-height: 116.5px; overflow: hidden }
+  & > * {
+    width: 50%;
+    text-align: center;
+    padding: 1em;
+    border: 1px solid #bbb;
+  }
 
-  @media (min-width: 576px) { 
-    figure { min-height: 117.75px; max-height: 117.75px; }
-  }
-  @media (min-width: 768px) { 
-    figure { min-height: 152.75px; max-height: 152.75px; }
-  }
-  @media (min-width: 992px) { 
-    figure { min-height: 212.75px; max-height: 212.75px; }
-  }
-  @media (min-width: 1200px) { 
-    figure { min-height: 275.75px; max-height: 275.75px; }
-  }
-  @media (min-width: 1400px) { 
-    figure { min-height: 302.75px; max-height: 302.75px; }
+  img { 
+    display: none;
+    width: 60px;
+    margin-right: .5em;
   }
 }
+
+.ad-list {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-gap: 15px;
+}
+
+
+@media (min-width: 576px) { 
+  .ad-list {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .list-categories {
+    & > * {
+      border: none;
+      text-align: left;
+      padding: .5em;
+    }
+    img {
+      display: inline-block;
+    }
+  }
+}
+@media (min-width: 768px) { 
+  .ad-list {
+    grid-template-columns: repeat(4, 1fr);
+  }
+  .area-busca--1 {
+    margin: 0;
+  }
+  .area-busca--1 > * {
+    width: 25%;
+  }
+  .area-busca--1 > *:not(:last-child) {
+    margin-bottom: 0;
+  }
+  .area-busca--1 > *:first-child {
+    width: 50%;
+  }
+  .list-categories {
+    justify-content: space-evenly;
+    & > * {
+      width: auto;
+    }
+  }
+}
+@media (min-width: 992px) { 
+
+}
+@media (min-width: 1200px) { 
+  .area-busca--1 > * {
+    width: 18%;
+  }
+  .area-busca--1 > *:first-child {
+    width: 64%;
+  }
+}
+@media (min-width: 1400px) { 
+  .area-busca--1 > * {
+    width: 15%;
+  }
+  .area-busca--1 > *:first-child {
+    width: 70%;
+  }
+}
+
+
 `;

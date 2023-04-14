@@ -5,6 +5,7 @@ import * as C from './styles';
 import { delay, get } from '../../helpers';
 import { api } from '../../Api';
 
+import { Fake } from '../../components/MainComponents';
 import AdItem from '../../components/AdItem';
 import Pagination from '../../components/Pagination';
 
@@ -134,7 +135,7 @@ function Page() {
     <C.Container>
       <div className="container pt-3">
         <div className="row">
-          <form className='col-3 pe-2' onSubmit={handleSubmit}>
+          <form className='col-sm-3' onSubmit={handleSubmit}>
 
             <div className="mb-2">
               <input 
@@ -185,10 +186,10 @@ function Page() {
 
           </form>
 
-          <div className="col-9 p-0">
+          <div className="col-sm-9">
             <div className="ad-list mb-4">
               {loading &&
-                new Array(4).fill(0).map((_, index) => <C.Fake key={index} height={378} />)
+                new Array(4).fill(0).map((_, index) => <Fake key={index} height={'70%'} />)
               }
               {!loading && ads && ads.map(item => <AdItem key={item.id} item={item} />)}
             </div>

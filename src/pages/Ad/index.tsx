@@ -5,6 +5,7 @@ import { AdType } from '../../types';
 import * as C from './styles';
 import { delay, formatLongDate } from '../../helpers';
 
+import { Fake } from '../../components/MainComponents';
 import Carousel from '../../components/Carousel';
 import AdItem from '../../components/AdItem';
 import Breadcrumb from '../../components/Breadcrumb';
@@ -18,14 +19,13 @@ function Page() {
   useEffect(() => {
     setLoading(true);
     setAd({});
-    const fn = async () => {
+    (async () => {
       const resp = await api.ad(Number(id), true);
       await delay(); // 500ms de espera
       if (resp.error) alert(resp.error);
       else setAd(resp);
       setLoading(false);
-    };
-    fn();
+    })();
   }, [id]);
 
   return (
@@ -42,19 +42,19 @@ function Page() {
         }
 
         <div className="area-item d-flex">
-          <div className='d-flex border rounded me-3 bg-white shadow-sm'>
+          <div className='d-flex border rounded bg-white shadow-sm'>
             <figure className='m-0'>
-              {loading && <C.Fake height={200} />}
+              {loading && <Fake height={'50%'} />}
               {ad.images &&
                 <Carousel images={ad.images} />}
             </figure>
-            <div className='p-2 mt-5'>
+            <div className='p-2'>
 
-              {loading && <C.Fake />}
+              {loading && <Fake />}
               {ad.title && <h3>{ad.title}</h3>}
 
               <div className='m-0'>
-                {loading && <C.Fake height={50} />}
+                {loading && <Fake height={50} />}
                 {ad.date_created && 
                   <span className='detail-date'>Criado em {formatLongDate(ad.date_created)}</span>}
                 {ad.date_created && 
@@ -66,7 +66,7 @@ function Page() {
           </div>
           <div>
             <div className="border rounded bg-white shadow p-2 mb-3">
-              {loading && <C.Fake height={15} />}
+              {loading && <Fake height={15} />}
               {ad.priceNegotiable == 1 &&
                 <span className='fs-6 fw-bold text-primary'>Preço Negociável</span>
               }
@@ -78,13 +78,13 @@ function Page() {
               }
             </div>
             <div className="border rounded mb-3">
-              {loading && <C.Fake height={15} />}
+              {loading && <Fake height={15} />}
               {!loading &&
                 <button className="btn btn-sm btn-primary w-100">Fale com o vendedor</button>
               }
             </div>
             <div className="border rounded bg-white shadow p-2 mb-3" style={{fontSize: '.9em'}}>
-              {loading && <C.Fake height={30} />}
+              {loading && <Fake height={30} />}
               {!loading && ad.user_name &&
                 <>
                   <span className="d-block fw-bold mb-2 fs-6">{ad.user_name}</span>
@@ -97,11 +97,11 @@ function Page() {
         </div>
 
         <div className="area-similares mt-3">
-          {loading && <C.Fake height={15} />}
+          {loading && <Fake height={15} />}
           {ad.similares?.length && <h5>Outras ofertas do vendedor</h5>}
           <div className="ad-list mt-3">
             {loading &&
-              new Array(4).fill(0).map((_, index) => <C.Fake key={index} height={125} />)
+              new Array(4).fill(0).map((_, index) => <Fake key={index} height={'60%'} />)
             }
             {ad.similares &&
               ad.similares.map(item => (

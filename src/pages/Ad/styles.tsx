@@ -2,11 +2,19 @@ import styled from "styled-components";
 
 export const Container = styled.div`
 
+.area-item,
 .area-item > *:first-child {
-  flex: 6;
+  flex-direction: column;
 }
-.area-item > *:last-child {
-  flex: 2;
+.my-breadcrumb {
+  font-size: .7em;
+  & > div {
+    display: none;
+  }
+}
+.slide-container {
+  width: 100%;
+  max-width: 400px;
 }
 .detail-date,
 .detail-desc,
@@ -31,34 +39,54 @@ export const Container = styled.div`
 
 .ad-list {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   grid-gap: 15px;
+}
 
-  figure { min-height: 116.5px; overflow: hidden }
-
-  @media (min-width: 576px) { 
-    figure { min-height: 117.75px; max-height: 117.75px; }
-  }
-  @media (min-width: 768px) { 
-    figure { min-height: 152.75px; max-height: 152.75px; }
-  }
-  @media (min-width: 992px) { 
-    figure { min-height: 212.75px; max-height: 212.75px; }
-  }
-  @media (min-width: 1200px) { 
-    figure { min-height: 275.75px; max-height: 275.75px; }
-  }
-  @media (min-width: 1400px) { 
-    figure { min-height: 302.75px; max-height: 302.75px; }
+@media (min-width: 576px) { 
+  .my-breadcrumb {
+    font-size: .9em;
+    & > div {
+      display: inline-block;
+    }
   }
 }
-`;
+@media (min-width: 768px) { 
+  .area-item {
+    flex-direction: row;
+  }
+  .area-item > *:first-child {
+    flex: 6;
+    margin-right: 1.5em;
+  }
+  .area-item > *:last-child {
+    flex: 3;
+  }
+  .ad-list {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+@media (min-width: 992px) { 
+  .area-item figure .fake,
+  .slide-container {
+    width: 400px;
+  }
+  .area-item > *:first-child {
+    flex-direction: row;
+    flex: 6;
+    margin-right: 1.5em;
+  }
+  .area-item > *:last-child {
+    flex: 2;
+  }
+  .area-item > *:first-child > div {
+    margin-top: 3rem;
+  } 
+}
+@media (min-width: 1200px) { 
 
-type FakeProps = {
-  height?: number;
-};
+}
+@media (min-width: 1400px) { 
 
-export const Fake = styled.div<FakeProps>`
-background-color: #DDD;
-padding: ${props => props.height ?? 10}px 0;
+}
 `;

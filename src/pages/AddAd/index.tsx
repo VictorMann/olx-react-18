@@ -85,11 +85,11 @@ function Page() {
           <ErrorMessage>{error}</ErrorMessage>
         }
 
-        <form onSubmit={handleSubmit} className="bg-white py-5 border border-secondary-subtle">
+        <form onSubmit={handleSubmit} className="bg-white border border-secondary-subtle">
           
-          <div className="mb-3 row">
-            <label htmlFor="staticName" className="col-sm-2 col-form-label text-end">Título</label>
-            <div className="col-sm-4">
+          <div className="mb-3 d-flex">
+            <label htmlFor="staticName" className="col-form-label">Título</label>
+            <div className="">
               <input 
                 id="staticName"
                 className="form-control" 
@@ -101,9 +101,9 @@ function Page() {
             </div>
           </div>
 
-          <div className="mb-3 row">
-            <label htmlFor="staticCategory" className="col-sm-2 col-form-label text-end">Categoria</label>
-            <div className="col-sm-4">
+          <div className="mb-3 d-flex">
+            <label htmlFor="staticCategory" className="col-form-label">Categoria</label>
+            <div className="">
               <select 
                 id="staticCategory"
                 className="form-select" 
@@ -121,9 +121,9 @@ function Page() {
             </div>
           </div>
 
-          <div className="mb-3 row">
-            <label htmlFor="staticPrice" className="col-sm-2 col-form-label text-end">Preço</label>
-            <div className="col-sm-4">
+          <div className="mb-3 d-flex">
+            <label htmlFor="staticPrice" className="col-form-label">Preço</label>
+            <div className="">
               <MaskedInput 
                 mask={priceMask}
                 id="staticPrice"
@@ -135,9 +135,9 @@ function Page() {
             </div>
           </div>
 
-          <div className="mb-3 row">
-            <label htmlFor="staticNegotiable" className="col-sm-2 form-check-label text-end">Preço Negociável</label>
-            <div className="col-sm-4">
+          <div className="area-select mb-3 d-flex">
+            <label htmlFor="staticNegotiable" className="form-check-label">Preço Negociável</label>
+            <div className="">
               <input 
                 id="staticNegotiable"
                 className="form-check-input" 
@@ -148,9 +148,9 @@ function Page() {
             </div>
           </div>
 
-          <div className="mb-3 row">
-            <label htmlFor="staticDesc" className="col-sm-2 col-form-label text-end">Descrição</label>
-            <div className="col-sm-4">
+          <div className="mb-3 d-flex">
+            <label htmlFor="staticDesc" className="col-form-label">Descrição</label>
+            <div className="">
               <textarea 
                 id="staticDesc"
                 className="form-control" 
@@ -160,9 +160,9 @@ function Page() {
             </div>
           </div>
 
-          <div className="mb-3 row">
-            <label className="col-sm-2 form-check-label text-end">Imagens (1 ou mais)</label>
-            <div className="col-sm-4">
+          <div className="mb-3 d-flex">
+            <label className="form-check-label">Imagens (1 ou mais)</label>
+            <div className="">
               <input 
                 ref={fileField}
                 type="file" 
@@ -173,9 +173,9 @@ function Page() {
             </div>
           </div>
 
-          <div className="row">
-            <label className="col-sm-2"></label>
-            <div className="col-sm-4">
+          <div className="d-flex">
+            <label className=""></label>
+            <div className="">
             <button 
                 className='btn btn-sm btn-primary w-25'
                 disabled={disabled}>Postar</button>

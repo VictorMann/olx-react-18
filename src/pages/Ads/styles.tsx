@@ -38,35 +38,40 @@ form {
 
 .ad-list {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   grid-gap: 15px;
+}
 
-  figure { min-height: 116.5px; overflow: hidden }
-
-  @media (min-width: 576px) { 
-    figure { min-height: 117.75px; max-height: 117.75px; }
+@media (min-width: 576px) { 
+  .row > *:first-child {
+    padding-right: 0;
+    width: 33%;
   }
-  @media (min-width: 768px) { 
-    figure { min-height: 152.75px; max-height: 152.75px; }
-  }
-  @media (min-width: 992px) { 
-    figure { min-height: 212.75px; max-height: 212.75px; }
-  }
-  @media (min-width: 1200px) { 
-    figure { min-height: 275.75px; max-height: 275.75px; }
-  }
-  @media (min-width: 1400px) { 
-    figure { min-height: 302.75px; max-height: 302.75px; }
+  .row > *:last-child {
+    width: 67%;
   }
 }
-`;
+@media (min-width: 768px) { 
+  .row > *:first-child {
+    padding-right: calc(var(--bs-gutter-x) * .5);
+    width: 25%;
+  }
+  .row > *:last-child {
+    width: 75%;
+  }
+  .ad-list {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+@media (min-width: 992px) { 
+  .ad-list {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+@media (min-width: 1200px) { 
 
-type FakeProps = {
-  height?: number;
-};
+}
+@media (min-width: 1400px) { 
 
-export const Fake = styled.div<FakeProps>`
-background-color: #DDD;
-// padding: ${props => props.height ?? 10}px 0;
-height: ${props => props.height ?? 10}px;
+}
 `;

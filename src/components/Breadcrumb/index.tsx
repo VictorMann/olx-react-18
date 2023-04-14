@@ -8,7 +8,7 @@ type Props = {
 
 function Comp({ items, label }: Props) {
   return (
-    <C.Container className='d-flex'>
+    <C.Container className='my-breadcrumb d-flex'>
       {label && <div className='me-2'>Você está aqui:</div>}
       <ul className='list-unstyled d-flex'>
         {items.map((item, index) => (

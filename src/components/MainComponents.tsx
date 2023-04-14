@@ -21,3 +21,13 @@ export const ErrorMessage = ({ children }: PropsErroMessage) => {
     </div>
   )
 };
+
+type FakeProps = {
+  height?: string|number|any;
+};
+
+export const Fake = styled.div.attrs({ className: 'fake' })<FakeProps>`
+background-color: #DDD;
+padding: ${props => props.height ? (isNaN(props.height) ? props.height : `${props.height}px`) : '10px'} 0;
+// height: ${props => props.height ?? 10}px;
+`;

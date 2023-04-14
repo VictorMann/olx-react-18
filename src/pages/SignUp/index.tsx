@@ -67,11 +67,11 @@ function Page() {
           <ErrorMessage>{error}</ErrorMessage>
         }
 
-        <form onSubmit={handleSubmit} className="bg-white py-5 border border-secondary-subtle">
+        <form onSubmit={handleSubmit} className="bg-white border border-secondary-subtle">
 
-          <div className="mb-3 row">
-            <label htmlFor="staticName" className="col-sm-2 col-form-label text-end">Nome</label>
-            <div className="col-sm-4">
+          <div className="mb-3 d-flex">
+            <label htmlFor="staticName" className="col-form-label">Nome</label>
+            <div className="">
               <input 
                 id="staticName"
                 className="form-control" 
@@ -83,9 +83,9 @@ function Page() {
             </div>
           </div>
 
-          <div className="mb-3 row">
-            <label htmlFor="staticEmail" className="col-sm-2 col-form-label text-end">Email</label>
-            <div className="col-sm-4">
+          <div className="mb-3 d-flex">
+            <label htmlFor="staticEmail" className="col-form-label">Email</label>
+            <div className="">
               <input 
                 id="staticEmail"
                 className="form-control" 
@@ -97,9 +97,9 @@ function Page() {
             </div>
           </div>
 
-          <div className="mb-3 row">
-            <label htmlFor="staticEstado" className="col-sm-2 col-form-label text-end">Estado</label>
-            <div className="col-sm-4">
+          <div className="mb-3 d-flex">
+            <label htmlFor="staticEstado" className="col-form-label">Estado</label>
+            <div className="">
               <select 
                 id="staticEstado"
                 className="form-select" 
@@ -115,9 +115,9 @@ function Page() {
             </div>
           </div>
 
-          <div className="mb-3 row">
-            <label htmlFor="staticPass" className="col-sm-2 col-form-label text-end">Senha</label>
-            <div className="col-sm-4">
+          <div className="mb-3 d-flex">
+            <label htmlFor="staticPass" className="col-form-label">Senha</label>
+            <div className="">
               <input 
                 id="staticPass"
                 className="form-control" 
@@ -129,9 +129,9 @@ function Page() {
             </div>
           </div>
 
-          <div className="mb-3 row">
-            <label htmlFor="staticConfirm" className="col-sm-2 col-form-label text-end">Confirmar Senha</label>
-            <div className="col-sm-4">
+          <div className="mb-3 d-flex">
+            <label htmlFor="staticConfirm" className="col-form-label">Confirmar Senha</label>
+            <div className="">
               <input 
                 id="staticConfirm"
                 className="form-control" 
@@ -144,9 +144,9 @@ function Page() {
           </div>
 
 
-          <div className="row">
-            <label className="col-sm-2"></label>
-            <div className="col-sm-4">
+          <div className="d-flex">
+            <label className=""></label>
+            <div className="">
             <button 
                 className='btn btn-sm btn-primary'
                 disabled={disabled}>Cadastrar</button>

@@ -34,7 +34,7 @@ function Page() {
 
   useEffect(() => {
     (async () => {
-      const resp = await api.ads({});
+      const resp = await api.ads({ limit: 20 });
       if (resp.error) alert(resp.error);
       else setAds(resp.result);
     })();
@@ -57,9 +57,9 @@ function Page() {
         <div className="container">
           <form onSubmit={handleSubmit} className="p-3 my-4 rounded-3">
 
-            <div className="row">
+            <div className="row area-busca--1">
 
-              <div className="col-8">
+              <div className="col-md-8">
                 <input 
                   className="form-control" 
                   placeholder="O que você procura?"
@@ -68,7 +68,7 @@ function Page() {
                   required />
               </div>
 
-              <div className="col-2">
+              <div className="col-md-2">
                 <select 
                   className="form-select"
                   value={stateLoc}
@@ -82,18 +82,18 @@ function Page() {
                 </select>
               </div>
 
-              <div className="col-2">
+              <div className="col-md-2">
                 <button 
                   className='w-100 btn btn-info text-light fw-bold'>Pesquisar</button>
               </div>
             </div>
           </form>
 
-          <ul className="list-unstyled d-flex justify-content-evenly">
+          <ul className="list-categories list-unstyled d-flex">
             {categories.length && categories.map(item => (
               <li key={item.id}>
                 <Link to={`/ads?category=${item.id}`} className="text-decoration-none">
-                  <img src={item.image} alt="" className='me-3' style={{width: '60px'}} />
+                  <img src={item.image} alt="" />
                   <span>{item.description}</span>
                 </Link>
               </li>

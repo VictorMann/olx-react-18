@@ -45,11 +45,11 @@ function Page() {
           <ErrorMessage>{error}</ErrorMessage>
         }
 
-        <form onSubmit={handleSubmit} className="bg-white py-5 border border-secondary-subtle">
+        <form onSubmit={handleSubmit} className="bg-white border border-secondary-subtle">
 
-          <div className="mb-3 row">
-            <label htmlFor="staticEmail" className="col-sm-2 col-form-label text-end">Email</label>
-            <div className="col-sm-4">
+          <div className="mb-3 d-flex">
+            <label htmlFor="staticEmail" className="col-form-label">Email</label>
+            <div className="">
               <input 
                 id="staticEmail"
                 className="form-control" 
@@ -61,9 +61,9 @@ function Page() {
             </div>
           </div>
 
-          <div className="mb-3 row">
-            <label htmlFor="staticPass" className="col-sm-2 col-form-label text-end">Senha</label>
-            <div className="col-sm-4">
+          <div className="mb-3 d-flex">
+            <label htmlFor="staticPass" className="col-form-label">Senha</label>
+            <div className="">
               <input 
                 id="staticPass"
                 className="form-control" 
@@ -75,9 +75,9 @@ function Page() {
             </div>
           </div>
 
-          <div className="mb-3 row">
-            <label htmlFor="staticRem" className="col-sm-2 form-check-label text-end">Lembrar Senha</label>
-            <div className="col-sm-4">
+          <div className="area-remember-pass mb-3 d-flex">
+            <label htmlFor="staticRem" className="form-check-label">Lembrar Senha</label>
+            <div className="">
               <input 
                 id="staticRem"
                 className="form-check-input" 
@@ -88,9 +88,9 @@ function Page() {
             </div>
           </div>
 
-          <div className="row">
-            <label className="col-sm-2"></label>
-            <div className="col-sm-4">
+          <div className="d-flex">
+            <label className=""></label>
+            <div className="">
             <button 
                 className='btn btn-sm btn-primary'
                 disabled={disabled}>Fazer Login</button>

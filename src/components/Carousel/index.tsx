@@ -1,5 +1,5 @@
 import { Slide } from 'react-slideshow-image';
-import 'react-slideshow-image/dist/styles.css'
+import 'react-slideshow-image/dist/styles.css';
 
 const divStyle = {
   display: 'flex',
@@ -8,7 +8,7 @@ const divStyle = {
   backgroundSize: 'contain',
   backgroundPosition: 'center',
   backgroundRepeat: 'no-repeat',
-  height: '400px'
+  padding: '50% 0'
 }
 
 type Props = {
@@ -17,7 +17,7 @@ type Props = {
 
 function Carousel({ images }: Props) {
   return (
-    <div className="slide-container" style={{width: '400px'}}>
+    <div className="slide-container">
       <Slide>
         {images.map((img, index)=> (
           <div key={index}>

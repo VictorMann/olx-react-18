@@ -28,18 +28,18 @@ function Comp() {
           <ul className='list-unstyled d-flex align-items-center'>
             {logged &&
               <>
-                <li><Link to="/my-account" className='text-decoration-none pe-5'>Minha Conta</Link></li>
+                <li><Link to="/my-account" className='text-decoration-none'>Minha Conta</Link></li>
                 <li><button 
                   type="button" 
-                  className='btn btn-link text-decoration-none pe-5'
+                  className='btn btn-link text-decoration-none'
                   onClick={() => handleLogout()}>Sair</button></li>
                 <li><Link className='btn btn-sm btn-warning' to="/post-an-ad">Poste um anúncio</Link></li>
               </>
             }
             {!logged &&
               <>
-                <li><Link to="/signin" className='text-decoration-none pe-5'>Login</Link></li>
-                <li><Link to="/signup" className='text-decoration-none pe-5'>Cadastrar</Link></li>
+                <li><Link to="/signin" className='text-decoration-none'>Login</Link></li>
+                <li><Link to="/signup" className='text-decoration-none'>Cadastrar</Link></li>
                 <li><Link className='btn btn-sm btn-warning shadow-sm text-white' to="/signin">Poste um anúncio</Link></li>
               </>
             }
