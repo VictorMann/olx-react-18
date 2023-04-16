@@ -211,7 +211,7 @@ app.get('/api/ads', (req, res) => {
   db.all(sql, filters, (err, result) => {
     if (err) throw err;
     if (result.length) {
-      const currentPage = (page && page > 1) ? page : 1;
+      const currentPage = (page && page > 1) ? +page : 1;
       limit = (limit && limit > 2) ? limit : 2;
       const totalPage = Math.ceil(result.length / limit);
       
