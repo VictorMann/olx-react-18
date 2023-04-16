@@ -252,6 +252,7 @@ app.get('/api/ad/:id', (req, res) => {
       delete data.image;
       data.images = [];
       result.forEach(item => data.images.push(item.image));
+      // trazer todos os anúncios do usuário
       if (s == 1) {
         db.all(`
         SELECT a.*, ai.image 
