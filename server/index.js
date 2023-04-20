@@ -108,6 +108,43 @@ app.get('/', (req, res) => {
 });
 
 
+app.get('/api/user', verifyToken, (req, res) => {
+  const sql = `
+  SELECT u.name, u.email, u.uf, a.id ad_id, a.title, a.price, a.priceNegotiable, ai.image
+  FROM user u
+  INNER JOIN ad a ON a.user_id = u.id
+  INNER JOIN ad_image ai ON ai.ad_id = a.id
+  WHERE u.email = ?
+  GROUP BY a.id`;
+
+  db.all(sql, req.email, (err, result) => {
+    if (err) throw err;
+    let data = {...result[0]};
+    
+    delete data.ad_id;
+    delete data.title;
+    delete data.price;
+    delete data.priceNegotiable;
+    delete data.image;
+
+    let ads = {};
+    result.forEach(item => {
+        ads[item.ad_id] = {
+          id: item.ad_id,
+          title: item.title,
+          price: item.price,
+          priceNegotiable: item.priceNegotiable,
+          image: item.image
+        }
+    });
+
+    data.ads = [];
+    for (p in ads) data.ads.push(ads[p]);
+
+    res.json(data);
+  });
+});
+
 // endpoint para autenticação
 app.post('/api/login', (req, res) => {
   const { email, password } = req.body;
@@ -274,7 +311,12 @@ app.get('/api/ad/:id', (req, res) => {
 
 
 const removeImages = files => {
-  [].map.call(files, img => fs.unlinkSync(process.env.TEMP_IMAGE_DIR + img.filename));
+  files && [].map.call(files, img => fs.unlinkSync(process.env.TEMP_IMAGE_DIR + img.filename));
+};
+
+const removeImages2 = img => {
+  let filename = process.env.TEMP_IMAGE_DIR + img;
+  fs.existsSync(filename) && fs.unlinkSync(filename);
 };
 
 app.post('/api/ad', verifyToken, upload.array('images', 5), (req, res) => {
@@ -308,6 +350,51 @@ app.post('/api/ad', verifyToken, upload.array('images', 5), (req, res) => {
         });
       });
     });
+  });
+});
+
+app.put('/api/ad/:id', verifyToken, upload.array('images', 5), (req, res) => {
+  const { id } = req.params;
+  let sql = `
+  SELECT 1 FROM user u INNER JOIN ad a ON a.user_id = u.id
+  WHERE u.email = ? AND a.id = ?`;
+  db.get(sql, [req.email, id], (err, result) => {
+    if (err) { removeImages(req.files); throw err; }
+    if (result) {
+      db.serialize(() => {
+        db.run('BEGIN TRANSACTION');
+
+        if (req.body.imagesRemove) {
+          req.body.imagesRemove.forEach(img => 
+            db.run('DELETE FROM ad_image WHERE ad_id = ? AND image LIKE ?', [id, `%${img}`], err => removeImages2(img))
+          )
+        }
+
+        sql = 'UPDATE ad SET categoria_id = ?, title = ?, price = ?, priceNegotiable = ?, description = ? WHERE id = ?';
+        let values = [req.body.categoria_id, req.body.title, req.body.price, req.body.priceNegotiable, req.body.description, id];
+        db.run(sql, values, err => {
+          if (err) { db.run('ROLLBACK'); removeImages(req.files); throw err; }
+
+          if (req.files.length) {
+            values = [].map.call(req.files, img => `(${id}, 'http://localhost:${PORT}/images/tmp/${img.filename}')`).join(',');
+            
+            db.run(`INSERT INTO ad_image (ad_id, image) VALUES ${values}`, err => {
+              if (err) { db.run('ROLLBACK'); removeImages(req.files); throw err; }
+              db.run('COMMIT');
+              res.json({status: true, message: 'success'});
+            });
+          } else {
+            db.run('COMMIT');
+            res.json({status: true, message: 'success'});
+          }
+        });
+
+      });
+
+    } else {
+      removeImages(req.files);
+      res.status(404).json({error: 'Ad não pertence a esse usuário'});
+    }
   });
 });
 
