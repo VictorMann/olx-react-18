@@ -153,11 +153,10 @@ export const api = {
     return data;
   },
 
-  async myCount() {
-    let data: any = {};
+  async AdUpdate(id: number, formData: FormData) {
+    let data: ErrorType | any;
     try {
-      if (!isLogged()) return {error: 'Não está logado'}; 
-      const response = await http.get('/protected', {headers: {'Authorization': Cookies.get('token')}});
+      const response = await http.put(`/api/ad/${id}`, formData, {headers: {'Authorization': Cookies.get('token')}});
       data = response.data;
     } catch (e: any) {
       data = trataErrorResponse(e);
@@ -165,5 +164,19 @@ export const api = {
 
     return data;
   },
+
+  async myCount() {
+    let data: any = [];
+    try {
+      if (!isLogged()) return {error: 'Não está logado'}; 
+      const response = await http.get('/api/user', {headers: {'Authorization': Cookies.get('token')}});
+      data = response.data;
+    } catch (e: any) {
+      data = trataErrorResponse(e);
+    }
+
+    return data;
+  },
+  
 
 };
