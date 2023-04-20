@@ -82,3 +82,23 @@ export const get = (data: any, type: string|null = null, defalut: any = '') => {
 	}
 	return data;
 };
+
+/**
+ * Converte valor moeda em número
+ * 
+ * @param moeda {stirng|number} valor moeda a ser convertido 
+ * @returns {number}
+ */
+export const formatNumber = (moeda: string|number) => {
+	return Number(String(moeda).replaceAll('.', '$').replaceAll(',','.').replaceAll('$', '')); 
+};
+
+/**
+ * Converte valor número em moeda
+ * 
+ * @param number {string|number} número a ser convertido
+ * @returns {number}
+ */
+export const formatMoeda = (number: string|number) => {
+	return String(number).replaceAll('.', ',');
+};
