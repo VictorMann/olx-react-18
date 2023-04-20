@@ -7,15 +7,20 @@ import { Template } from './components/MainComponents';
 import Header from './components/partials/Header';
 import Footer from './components/partials/Footer';
 
+import ModalAdItem from './components/ModalAdItem';
+
 function App() {
-  const user = useAppSelector(state => state.user);
+  const modalAdItem = useAppSelector(state => state.modalAdItem);
   return (
     <BrowserRouter>
-      <Template>
-        <Header />
-        <Routes />
-        <Footer />
-      </Template>
+      <>
+        <Template>
+          <Header />
+          <Routes />
+          <Footer />
+        </Template>
+        {modalAdItem.opened && <ModalAdItem />}
+      </>
     </BrowserRouter>
   );
 }
